@@ -1,62 +1,51 @@
 # Task Manager
 
-A browser-based task manager created with HTML, CSS, and JavaScript.
-
-This project follows a TodoMVC-inspired task flow and demonstrates core task-manager behavior in a small, easy-to-understand app.
-
-## Project structure
-
-```text
-task-manager/
-├── index.html
-├── styles.css
-├── app.js
-└── README.md
-```
+A small browser-based task manager developed with HTML, CSS, and JavaScript. It allows users to organize tasks without creating an account or using a server.
 
 ## Features
-- Add a task
-- Mark a task complete or active again
-- Delete a task
-- Filter tasks by All, Active, and Completed
-- Save tasks in localStorage
-- Show remaining task count
-- Clear completed tasks
-- Keep UI simple and keyboard-friendly
 
-## Run locally
-From the project folder, run:
+- Add new tasks
+- Mark tasks as completed or active
+- Delete tasks
+- Filter tasks by All, Active, or Completed
+- Save tasks in browser local storage
 
-```bash
-python -m http.server 8000
-```
+## Running the Project
 
-Then open this in the browser:
+1. Clone the repository:
 
-```text
-http://localhost:8000
-```
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/task-manager.git
+   ```
 
-You can also open the project directly in a browser by double-clicking `index.html`, though using a local server is recommended.
+2. Open the project directory.
+3. Open `index.html` in a web browser.
 
-## Requirements covered
-This project satisfies the main task-manager requirements:
-- add task
-- complete task
-- delete task
-- filter tasks
-- persist tasks with localStorage
+No package installation or build command is required.
 
-## Notes
-Each task is stored as an object with an `id`, `title`, and `completed` flag. Data is saved in the browser so it remains after refresh.
+## Open-Source Reference
 
-## Testing checklist
-- Add a normal task
-- Try submitting an empty task
-- Add multiple tasks
-- Mark a task complete
-- Mark it active again
-- Delete a task
-- Test All, Active, and Completed filters
-- Refresh the page and confirm tasks remain
-- Confirm there are no browser console errors
+This project was inspired by the functionality and scope of TodoMVC:
+
+[https://github.com/tastejs/todomvc](https://github.com/tastejs/todomvc)
+
+TodoMVC was used as a reference for common task-management features.
+
+The implementation in this repository was created independently and does not copy the reference project's source code.
+
+## AI Tools Used
+
+GitHub Copilot was used to help plan the project, generate initial code suggestions, review implementation ideas, and troubleshoot errors.
+
+All generated suggestions were reviewed, modified, and tested by the project author.
+
+## Technologies
+
+- HTML
+- CSS
+- JavaScript
+- Web Storage API
+
+## Author
+
+Your Name — `https://github.com/YOUR-USERNAME`
