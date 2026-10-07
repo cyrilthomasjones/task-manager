@@ -10,19 +10,24 @@
     <main class="app">
       <h1>Task Manager</h1>
 
-      <form id="task-form" class="task-form">
-        <input
-          id="task-input"
-          type="text"
-          placeholder="Add a new task..."
-          maxlength="120"
-          aria-label="New task"
-          required
-        />
-         // Add Task button
-        <button type="submit">Add Task</button>
-        
-      </form>
+<form id="task-form" class="task-form">
+  <input
+    id="task-input"
+    type="text"
+    placeholder="Add a new task..."
+    maxlength="120"
+    aria-label="New task"
+    required
+  />
+
+  <input
+    id="due-date-input"
+    type="date"
+    aria-label="Task due date"
+  />
+
+  <button type="submit">Add Task</button>
+</form>
 
       <div class="filter-row" aria-label="Task filters">
         <button type="button" class="filter-btn active" data-filter="all">All</button>
