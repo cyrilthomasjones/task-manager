@@ -1,3 +1,4 @@
+
 const STORAGE_KEY = 'task-manager-tasks';
 
 const taskForm = document.getElementById('task-form');
@@ -12,6 +13,7 @@ const clearCompletedButton = document.getElementById('clear-completed');
 
 let tasks = loadTasks();
 let currentFilter = 'all';
+let editingTaskId = null;
 
 function announce(message) {
   liveRegion.textContent = '';
@@ -38,7 +40,7 @@ function loadTasks() {
       }))
       .filter((task) => task.title);
   } catch (error) {
-    console.error('Could not load tasks from localStorage:', error);
+    console.error('Could not load tasks:', error);
     return [];
   }
 }
@@ -62,15 +64,13 @@ function getFilteredTasks() {
 function updateFilterButtons() {
   filterButtons.forEach((button) => {
     const isActive = button.dataset.filter === currentFilter;
-
     button.classList.toggle('active', isActive);
-    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    button.setAttribute('aria-pressed', String(isActive));
   });
 }
 
 function updateRemainingCount() {
   const remaining = tasks.filter((task) => !task.completed).length;
-
   remainingCount.textContent =
     `${remaining} task${remaining === 1 ? '' : 's'} left`;
 }
@@ -79,7 +79,6 @@ function renderTasks() {
   const filteredTasks = getFilteredTasks();
 
   taskList.innerHTML = '';
-
   updateFilterButtons();
   updateRemainingCount();
 
@@ -105,6 +104,68 @@ function renderTasks() {
       li.classList.add('completed');
     }
 
+    // Show edit form for the selected task
+    if (editingTaskId === task.id) {
+      const editForm = document.createElement('form');
+      editForm.classList.add('edit-form');
+
+      const editInput = document.createElement('input');
+      editInput.type = 'text';
+      editInput.value = task.title;
+      editInput.maxLength = 120;
+      editInput.required = true;
+      editInput.setAttribute('aria-label', 'Edit task title');
+
+      const editDueDate = document.createElement('input');
+      editDueDate.type = 'date';
+      editDueDate.value = task.dueDate || '';
+      editDueDate.setAttribute('aria-label', 'Edit task due date');
+
+      const saveButton = document.createElement('button');
+      saveButton.type = 'submit';
+      saveButton.textContent = 'Save';
+
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = 'Cancel';
+
+      cancelButton.addEventListener('click', () => {
+        editingTaskId = null;
+        renderTasks();
+        announce('Editing cancelled');
+      });
+
+      editForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const newTitle = editInput.value.trim();
+
+        if (!newTitle) {
+          editInput.setCustomValidity('Task title cannot be empty.');
+          editInput.reportValidity();
+          return;
+        }
+
+        editInput.setCustomValidity('');
+
+        saveTaskEdit(task.id, newTitle, editDueDate.value);
+      });
+
+      editInput.addEventListener('input', () => {
+        editInput.setCustomValidity('');
+      });
+
+      editForm.appendChild(editInput);
+      editForm.appendChild(editDueDate);
+      editForm.appendChild(saveButton);
+      editForm.appendChild(cancelButton);
+      li.appendChild(editForm);
+      taskList.appendChild(li);
+
+      editInput.focus();
+      return;
+    }
+
     // Completion checkbox
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -113,13 +174,11 @@ function renderTasks() {
       'aria-label',
       `Mark ${task.title} as complete`
     );
-
-    checkbox.addEventListener('change', () => {
-      toggleTask(task.id);
-    });
+    checkbox.addEventListener('change', () => toggleTask(task.id));
 
     // Task title
     const text = document.createElement('span');
+    text.classList.add('task-title');
     text.textContent = task.title;
 
     // Due date
@@ -134,14 +193,25 @@ function renderTasks() {
       dueDate.textContent = `Due: ${formattedDate}`;
     }
 
+    // Edit button
+    const editButton = document.createElement('button');
+    editButton.type = 'button';
+    editButton.textContent = 'Edit';
+    editButton.setAttribute('aria-label', `Edit ${task.title}`);
+
+    editButton.addEventListener('click', () => {
+      editingTaskId = task.id;
+      renderTasks();
+      announce(`Editing task: ${task.title}`);
+    });
+
     // Delete button
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.textContent = 'Delete';
+    deleteButton.setAttribute('aria-label', `Delete ${task.title}`);
 
-    deleteButton.addEventListener('click', () => {
-      deleteTask(task.id);
-    });
+    deleteButton.addEventListener('click', () => deleteTask(task.id));
 
     li.appendChild(checkbox);
     li.appendChild(text);
@@ -150,10 +220,29 @@ function renderTasks() {
       li.appendChild(dueDate);
     }
 
+    li.appendChild(editButton);
     li.appendChild(deleteButton);
-
     taskList.appendChild(li);
   });
+}
+
+function saveTaskEdit(taskId, newTitle, newDueDate) {
+  tasks = tasks.map((task) => {
+    if (task.id === taskId) {
+      return {
+        ...task,
+        title: newTitle,
+        dueDate: newDueDate,
+      };
+    }
+
+    return task;
+  });
+
+  editingTaskId = null;
+  saveTasks();
+  renderTasks();
+  announce(`Task updated: ${newTitle}`);
 }
 
 function addTask(event) {
@@ -167,7 +256,7 @@ function addTask(event) {
   }
 
   tasks.unshift({
-    id: crypto.randomUUID
+    id: typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random()}`,
     title,
@@ -181,17 +270,13 @@ function addTask(event) {
 
   saveTasks();
   renderTasks();
-
   announce(`Task added: ${title}`);
 }
 
 function toggleTask(taskId) {
   tasks = tasks.map((task) => {
     if (task.id === taskId) {
-      return {
-        ...task,
-        completed: !task.completed,
-      };
+      return { ...task, completed: !task.completed };
     }
 
     return task;
@@ -204,9 +289,7 @@ function toggleTask(taskId) {
 
   if (updatedTask) {
     announce(
-      `Task marked as ${
-        updatedTask.completed ? 'complete' : 'active'
-      }: ${updatedTask.title}`
+      `Task marked as ${updatedTask.completed ? 'complete' : 'active'}: ${updatedTask.title}`
     );
   }
 }
@@ -215,6 +298,10 @@ function deleteTask(taskId) {
   const taskToDelete = tasks.find((task) => task.id === taskId);
 
   tasks = tasks.filter((task) => task.id !== taskId);
+
+  if (editingTaskId === taskId) {
+    editingTaskId = null;
+  }
 
   saveTasks();
   renderTasks();
@@ -225,40 +312,31 @@ function deleteTask(taskId) {
 }
 
 function clearCompletedTasks() {
-  const completedCount = tasks.filter(
-    (task) => task.completed
-  ).length;
+  const completedCount = tasks.filter((task) => task.completed).length;
 
   tasks = tasks.filter((task) => !task.completed);
+  editingTaskId = null;
 
   saveTasks();
   renderTasks();
 
   if (completedCount > 0) {
     announce(
-      `${completedCount} completed task${
-        completedCount === 1 ? '' : 's'
-      } cleared`
+      `${completedCount} completed task${completedCount === 1 ? '' : 's'} cleared`
     );
   }
 }
 
-// Add a new task
 taskForm.addEventListener('submit', addTask);
 
-// Change task filter
 filterButtons.forEach((button) => {
   button.addEventListener('click', () => {
     currentFilter = button.dataset.filter;
+    editingTaskId = null;
     renderTasks();
   });
 });
 
-// Clear all completed tasks
-clearCompletedButton.addEventListener(
-  'click',
-  clearCompletedTasks
-);
+clearCompletedButton.addEventListener('click', clearCompletedTasks);
 
-// Initial display
 renderTasks();
