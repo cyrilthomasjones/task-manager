@@ -135,6 +135,24 @@ function renderTasks() {
         announce('Editing cancelled');
       });
 
+editForm.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    editingTaskId = null;
+    renderTasks();
+
+    const editButton = Array.from(
+      taskList.querySelectorAll('button[data-task-id]')
+    ).find((button) => button.dataset.taskId === String(task.id));
+
+    if (editButton) {
+      editButton.focus();
+    }
+
+    announce('Editing cancelled');
+  }
+});
+
       editForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
@@ -197,6 +215,7 @@ function renderTasks() {
     const editButton = document.createElement('button');
     editButton.type = 'button';
     editButton.textContent = 'Edit';
+    editButton.dataset.taskId = task.id;
     editButton.setAttribute('aria-label', `Edit ${task.title}`);
 
     editButton.addEventListener('click', () => {
