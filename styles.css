@@ -227,3 +227,30 @@ input:focus-visible {
 .edit-form button {
   padding: 10px 14px;
 }
+
+/* Issue #4: Keyboard accessibility improvements */
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(49, 46, 129, 0.18);
+}
+
+/* Make keyboard focus easier to identify */
+.task-item:focus-within {
+  border-color: var(--primary);
+}
+
+/* Improve keyboard focus on filter buttons */
+.filter-btn:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+/* Maintain visible focus for editing controls */
+.edit-form input:focus-visible,
+.edit-form button:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
