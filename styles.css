@@ -158,7 +158,8 @@ input:focus-visible {
   color: var(--text);
 }
 
-.task-item.completed span {
+/* Cross out only the completed task title */
+.task-item.completed .task-title {
   text-decoration: line-through;
   color: var(--muted);
 }
@@ -191,4 +192,38 @@ input:focus-visible {
 
 .hidden {
   display: none;
+}
+
+  .edit-form input,
+  .edit-form button {
+    width: 100%;
+  }
+
+  /* Task editing form */
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-form input {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.edit-form input[type="text"] {
+  flex: 1 1 180px;
+}
+
+.edit-form input[type="date"] {
+  flex: 1 1 140px;
+}
+
+.edit-form button {
+  padding: 10px 14px;
 }
