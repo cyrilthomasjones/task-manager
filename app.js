@@ -1,4 +1,7 @@
 
+
+import { getFilteredTasks } from './taskFilters.js';
+
 const STORAGE_KEY = 'task-manager-tasks';
 
 const taskForm = document.getElementById('task-form');
@@ -49,17 +52,18 @@ function saveTasks() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
-function getFilteredTasks() {
-  if (currentFilter === 'active') {
-    return tasks.filter((task) => !task.completed);
-  }
+// function getFilteredTasks() {
+//   if (currentFilter === 'active') {
+//     return tasks.filter((task) => !task.completed);
+//   }
 
-  if (currentFilter === 'completed') {
-    return tasks.filter((task) => task.completed);
-  }
+//   if (currentFilter === 'completed') {
+//     return tasks.filter((task) => task.completed);
+//   }
 
-  return tasks;
-}
+//   return tasks;
+// }
+
 
 function updateFilterButtons() {
   filterButtons.forEach((button) => {
@@ -76,7 +80,7 @@ function updateRemainingCount() {
 }
 
 function renderTasks() {
-  const filteredTasks = getFilteredTasks();
+ const filteredTasks = getFilteredTasks(tasks, currentFilter);
 
   taskList.innerHTML = '';
   updateFilterButtons();
